@@ -1,7 +1,7 @@
 -- create database testing_system
-DROP DATABASE IF EXISTS testing_system;
-CREATE DATABASE IF NOT EXISTS testing_system;
-USE testing_system;
+DROP DATABASE IF EXISTS testing_system_3;
+CREATE DATABASE IF NOT EXISTS testing_system_3;
+USE testing_system_3;
 
 -- create table departments
 DROP TABLE IF EXISTS departments;
@@ -32,8 +32,8 @@ CREATE TABLE accounts (
     position_id 			INT(10),
     create_date 			TIMESTAMP DEFAULT NOW(),
 PRIMARY KEY (account_id),
-FOREIGN KEY (department_id) REFERENCES departments(department_id),
-FOREIGN KEY (position_id) REFERENCES positions(position_id)
+FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE CASCADE,
+FOREIGN KEY (position_id) REFERENCES positions(position_id) ON DELETE CASCADE
 );
 
 -- create table groups
@@ -44,7 +44,7 @@ CREATE TABLE `groups` (
     creator_id 				INT(10),
     create_date 			TIMESTAMP DEFAULT NOW(),
 PRIMARY KEY (group_id),
-FOREIGN KEY (creator_id) REFERENCES accounts(account_id)
+FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
 
 -- create table group_account
@@ -53,9 +53,8 @@ CREATE TABLE group_account (
 	group_id 				INT(10),
     account_id 				INT(10),
     join_date 				TIMESTAMP,
-PRIMARY KEY (group_id, account_id),
-FOREIGN KEY (group_id) REFERENCES `groups`(group_id),
-FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+FOREIGN KEY (group_id) REFERENCES `groups`(group_id) ON DELETE CASCADE,
+FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
 
 -- create table type_question
@@ -84,9 +83,9 @@ CREATE TABLE questions (
     creator_id 				INT(10),
     create_date 			TIMESTAMP DEFAULT NOW(),
 PRIMARY KEY (question_id),
-FOREIGN KEY (category_id) REFERENCES category_question(category_id),
-FOREIGN KEY (type_id) REFERENCES type_question(type_id),
-FOREIGN KEY (creator_id) REFERENCES accounts(account_id)
+FOREIGN KEY (category_id) REFERENCES category_question(category_id) ON DELETE CASCADE,
+FOREIGN KEY (type_id) REFERENCES type_question(type_id) ON DELETE CASCADE,
+FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
 
 -- create table answers
@@ -97,7 +96,7 @@ CREATE TABLE answers (
     question_id 			INT(10),
     is_correct				BIT DEFAULT 0,
 PRIMARY KEY (answer_id),
-FOREIGN KEY (question_id) REFERENCES questions(question_id)
+FOREIGN KEY (question_id) REFERENCES questions(question_id) ON DELETE CASCADE
 );
 
 -- create table exams
@@ -111,8 +110,8 @@ CREATE TABLE exams (
     creator_id 				INT(10),
     create_date 			TIMESTAMP DEFAULT NOW(),
 PRIMARY KEY (exam_id),
-FOREIGN KEY (category_id) REFERENCES category_question(category_id),
-FOREIGN KEY (creator_id) REFERENCES accounts(account_id)
+FOREIGN KEY (category_id) REFERENCES category_question(category_id) ON DELETE CASCADE,
+FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
 
 -- create table exam_question
@@ -121,8 +120,8 @@ CREATE TABLE exam_question (
 	exam_id 				INT(10),
     question_id 			INT(10),
 PRIMARY KEY (exam_id, question_id),
-FOREIGN KEY (exam_id) REFERENCES exams(exam_id),
-FOREIGN KEY (question_id) REFERENCES questions(question_id)
+FOREIGN KEY (exam_id) REFERENCES exams(exam_id) ON DELETE CASCADE,
+FOREIGN KEY (question_id) REFERENCES questions(question_id) ON DELETE CASCADE
 );
 
 -- Question 1: Them it nhat 10 ban ghi vao moi bang
@@ -154,7 +153,7 @@ INSERT INTO accounts
 ('tfermer0@ucla.edu', 				'tfermer0', 		'Tully Fermer', 			1, 					1		   ),
 ('tgatchell1@bbb.org', 				'tgatchell1', 		'Tuck Gatchell', 			2, 					1		   ),
 ('bsoutherell2@tripadvisor.com', 	'bsoutherell2', 	'Beatrisa Fermer', 			3, 					2		   ),
-('dtomley3@nymag.com', 				'dtomley3', 		'Denis Tomley', 			2, 					1		   ),
+('dtomley3@nymag.com', 				'dtomley3', 		'Denis Tomleyo', 			2, 					1		   ),
 ('asteaning4@paginegialle.it', 		'asteaning4', 		'Allis Steaning', 			5, 					5		   ),
 ('rwynrehame5@census.gov', 			'rwynrehame5', 		'Rodina Wynrehame', 		6, 					6		   ),
 ('atanti6@eventbrite.com', 			'atanti6', 			'Amabelle Tanti', 			5, 					7		   ),
@@ -308,17 +307,99 @@ VALUES					  (1, 		1		   ),
                           (8, 		2		   ),
                           (3, 		10		   ),
                           (10, 		9		   );
-						
--- Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-SELECT * FROM (accounts,departments);
 
--- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-SELECT * FROM accounts where create_date > 2010/12/20;
+-- Question 2: lấy ra tất cả các phòng ban
 
--- Question 3: Viết lệnh để lấy ra tất cả các developer
-SELECT * FROM accounts LEFT OUTER JOIN positions ON accounts.position_id = positions.position_id where positions.position_name = 'developer';
+SELECT * FROM departments;
 
--- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >3 nhân viên
-SELECT count(accounts.department_id) as "Tong" FROM departments LEFT OUTER JOIN accounts on departments.department_id = accounts.department_id where "Tong" > 3 group by departments.department_id;
+-- Question 3: lấy ra id của phòng ban Sale
 
+SELECT * FROM departments where department_name = 'sale';
 
+-- Question 4: lấy ra thông tin account có full name dài nhất
+
+select full_name, length(Full_name)
+from `accounts` 
+where length(Full_name) = (select min(length(Full_name)) from `accounts`);
+
+ -- Question 5: Lấy ra thông tin account có full name dài nhất và thuộc phòng ban có id = 3
+ 
+SELECT 	full_name, length(full_name)
+FROM 	`accounts`
+WHERE	department_id = 3 AND length(full_name) = (SELECT max(length(full_name))
+													FROM `accounts`
+													WHERE department_id = 3)
+;
+ 
+ -- Question 6: Lấy ra tên group đã tham gia trước ngày 20/12/2019
+
+SELECT 	*
+FROM	`groups`
+WHERE	create_date > 2010/12/20
+;
+
+-- Question 7: Lấy ra ID của question có >= 4 câu trả lời
+
+SELECT		question_id, count(answer_id)
+FROM		answers
+GROUP BY	question_id
+HAVING		count(answer_id) >= 4
+;
+
+-- Question 8: Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo trước ngày 20/12/2019
+
+SELECT		`Code`
+FROM		exams
+WHERE		duration >= 60 AND create_date < 2019/12/20
+;
+
+-- Question 9: Lấy ra 5 group được tạo gần đây nhất
+
+SELECT		*
+FROM		`groups`
+GROUP BY	create_date
+LIMIT		5
+;
+
+-- Question 10: Đếm số nhân viên thuộc department có id = 2
+
+SELECT 		COUNT(Account_ID) AS 'SO NHAN VIEN' 
+FROM 		`Accounts`
+WHERE 		Department_ID = 2;
+;
+
+-- Question 11: Lấy ra nhân viên có tên bắt đầu bằng chữ "D" và kết thúc bằng chữ "o"
+
+SELECT		full_name
+FROM		`accounts`
+WHERE		left(full_name, 1) = 'D' AND right(full_name, 1) = 'o'
+;
+
+-- Question 12: xóa tất cả các exam được tạo trước ngày 20/12/2019
+
+DELETE		
+FROM		exams
+WHERE		create_date < '2019/12/20'
+;
+
+-- Question 13: xóa tất cả các Account có FullName bắt đầu bằng 2 từ "Nguyễn Hải"
+
+DELETE
+FROM		`accounts`
+WHERE		(substring_index(full_name,' ', 2)) = 'Tuck Gatchell'
+;
+
+-- Question 14: update thông tin của account có id = 5 thành tên "Nguyễn Bá Lộc" và email thành loc.nguyenba@vti.com.vn
+
+UPDATE		`accounts`
+SET			full_name 	= 	'Nguyễn Bá Lộc',
+			Email		=	'loc.nguyenba@vti.com.vn'
+WHERE		account_id	=	5
+;
+
+-- Question 15: update account có id = 5 sẽ thuộc group có id = 4
+
+UPDATE		group_account
+SET			account_id		=	5
+WHERE		group_id		=	4
+;
