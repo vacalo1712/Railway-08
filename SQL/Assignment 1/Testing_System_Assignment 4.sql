@@ -30,7 +30,7 @@ CREATE TABLE accounts (
     -- gender					ENUM('M', 'F', 'U') DEFAULT 'M',
     department_id 			INT(10),
     position_id 			INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (account_id),
 FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE CASCADE,
 FOREIGN KEY (position_id) REFERENCES positions(position_id) ON DELETE CASCADE
@@ -42,7 +42,7 @@ CREATE TABLE `groups` (
 	group_id 				INT(10) AUTO_INCREMENT,
     group_name 				VARCHAR(255) UNIQUE NOT NULL,
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (group_id),
 FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
@@ -81,7 +81,7 @@ CREATE TABLE questions (
     category_id 			INT(10),
     type_id 				INT(10),
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (question_id),
 FOREIGN KEY (category_id) REFERENCES category_question(category_id) ON DELETE CASCADE,
 FOREIGN KEY (type_id) REFERENCES type_question(type_id) ON DELETE CASCADE,
@@ -108,7 +108,7 @@ CREATE TABLE exams (
     category_id 			INT(10),
     duration 				INT(10),
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (exam_id),
 FOREIGN KEY (category_id) REFERENCES category_question(category_id) ON DELETE CASCADE,
 FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
@@ -150,21 +150,21 @@ VALUES				  ('Developer'),
 -- Bang Account
 INSERT INTO accounts 
 (email, 							user_name, 			full_name, 					department_id, 		position_id) VALUES
-('tfermer0@uclaccountsedu', 				'tfermer0', 		'Tully Fermer', 			1, 					1		   ),
+('tfermer0@ucla.edu', 				'tfermer0', 		'Tully Fermer', 			1, 					1		   ),
 ('tgatchell1@bbb.org', 				'tgatchell1', 		'Tuck Gatchell', 			2, 					1		   ),
 ('bsoutherell2@tripadvisor.com', 	'bsoutherell2', 	'Beatrisa Fermer', 			3, 					2		   ),
 ('dtomley3@nymag.com', 				'dtomley3', 		'Denis Tomleyo', 			2, 					1		   ),
 ('asteaning4@paginegialle.it', 		'asteaning4', 		'Allis Steaning', 			5, 					5		   ),
 ('rwynrehame5@census.gov', 			'rwynrehame5', 		'Rodina Wynrehame', 		6, 					6		   ),
 ('atanti6@eventbrite.com', 			'atanti6', 			'Amabelle Tanti', 			5, 					7		   ),
-('olewington7@seesaaccountsnet', 			'olewington7', 		'Ophelia Lewington', 		1, 					5		   ),
+('olewington7@seesaa.net', 			'olewington7', 		'Ophelia Lewington', 		1, 					5		   ),
 ('glinklater8@w3.org', 				'glinklater8', 		'Germain Linklater', 		5, 					1		   ),
 ('mmcorkil9@reference.com', 		'mmcorkil9', 		'Michaeline McOrkil', 		2, 					2		   ),
 ('cjonuzia@irs.gov', 				'cjonuzia', 		'Cheri Jonuzi', 			3, 					3		   ),
 ('tlamontb@ow.ly', 					'tlamontb', 		'Tessi Lamont', 			3, 					3		   ),
 ('dkelsallc@ftc.gov', 				'dkelsallc', 		'Dosi Kelsall', 			4, 					4		   ),
 ('cbleackleyd@myspace.com', 		'cbleackleyd', 		'Carley Bleackley', 		5, 					8		   ),
-('agerrarde@altervistaccountsorg', 		'agerrarde', 		'Annnora Gerrard', 			3, 					4		   ),
+('agerrarde@altervista.org', 		'agerrarde', 		'Annnora Gerrard', 			3, 					4		   ),
 ('mkevisf@photobucket.com', 		'mkevisf', 			'Mae Kevis', 				4, 					3		   ),
 ('ewahlbergg@independent.co.uk', 	'ewahlbergg', 		'Etienne Wahlberg', 		6, 					7		   ),
 ('fcoyh@baidu.com', 				'fcoyh', 			'Fionna Coy', 				5, 					7		   ),
@@ -219,7 +219,7 @@ VALUES					  ('Essay Question'),
                           ('Comment Box Open Ended Question'),
                           ('Text Question');
 
--- Bang Category_Question
+-- Bang CategoryQuestion
 INSERT INTO category_question (category_name)
 VALUES						  ('Java'),
 							  ('C'),
@@ -273,7 +273,7 @@ INSERT INTO answers
 3, 0),
 ('Reserved words, also known as keywords, are the words that have predefined meanings in a particular programming language. These reserved words can’t be used or redefined for serving other purposes. Following are some examples of reserved words.',
 4, 1),
-('A loop is a structure in programming that can repeat a defined set of statements for a set number of times or until a particular condition is satisfiedepartments. There are three important types of loops.',
+('A loop is a structure in programming that can repeat a defined set of statements for a set number of times or until a particular condition is satisfied. There are three important types of loops.',
 4, 1),
 ('Program documentation is the written description of the algorithm(s), coding method, design, testing, and proper use of a particular computer program. It is valuable for those who use the program on a day-to-day basis and also for the programmer(s) who are meant to correct, modify, and update the computer program.',
 5, 0),
@@ -309,130 +309,125 @@ VALUES					  (1, 		1		   ),
                           (10, 		9		   );
 
 -- Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-
-SELECT 		accounts.account_id, accounts.email, accounts.user_name, accounts.full_name, accounts.gender, accounts.department_id, accounts.position_id, accounts.create_date, departments.department_id
-FROM		`accounts`
-JOIN		departments
-ON			`accounts`.department_id = departments.department_id
+SELECT	*
+FROM	accounts A JOIN departments D
+ON		A.department_id = D.department_id
 ;
 
 -- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-
-SELECT		*
-FROM		`accounts`
-WHERE		create_date > 2010/12/20
+SELECT	*
+FROM	accounts
+WHERE	create_date > '2010/12/20'
 ;
 
 -- Question 3: Viết lệnh để lấy ra tất cả các developer
-
-SELECT		*
-FROM		`accounts`
-JOIN		positions
-ON			accounts.account_id = positions.position_id
-WHERE		position_name	=	'Developer'
+SELECT	*
+FROM	accounts A 	JOIN	positions P
+ON		A.position_id = P.position_id
+WHERE	P.position_name = 'developer'
 ;
 
 -- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >3 nhân viên
-
-SELECT		departments.department_id, departments.department_name, count(accounts.department_ID) AS 'So Luong'
-FROM		`accounts`
-JOIN		departments
-ON			departments.department_id = accounts.department_ID
-GROUP BY	accounts.department_id
-HAVING		count(accounts.department_id) >3
+SELECT	department_name, count(A.department_id) AS 'So_NV'
+FROM	accounts A	JOIN	departments D 
+ON		A.department_id	= D.department_id
+GROUP BY	A.department_id
+HAVING	So_NV > 3
 ;
 
 -- Question 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất
-
-SELECT question_id, content, question_idany from (SELECT questions.question_id, questions.content, count(*) as question_idany
-		FROM questions
-		JOIN exam_question ON exam_question.question_id = questions.question_id
-        GROUP BY questions.question_id
-       ) A;
-       
-SELECT question_id, content, MAX(maxquestion) FROM (SELECT Q.question_id, Q.content, COUNT(*) as maxquestion
-FROM questions Q 
-INNER JOIN 	answers A ON	Q.question_id = A.question_id      
-GROUP BY Q.question_id) A;
-
-Select * from exam_question;
+SELECT	*, count(Q.content) AS 'Cau_hoi'
+FROM	exam_question EQ JOIN	questions Q 
+ON		EQ.question_id = Q.question_id
+GROUP BY	Q.content
+HAVING	count(Q.content) = (	SELECT	max(Cau_hoi)
+								FROM	(	SELECT	count(Q.content) AS 'Cau_hoi'
+											FROM	exam_question EQ JOIN	questions Q 
+											ON		EQ.question_id = Q.question_id
+											GROUP BY	Q.content) AS T)
+;
 
 -- Question 6: Thống kê mỗi category Question được sử dụng trong bao nhiêu Question
+SELECT	CQ.category_id, CQ.category_name, count(Q.category_id) AS 'So_cau'
+FROM	category_question CQ	LEFT JOIN 	questions Q 
+ON		CQ.category_id			= 		Q.category_id
+GROUP BY	CQ.category_id
+ORDER BY	CQ.category_id
+;
 
-SELECT		CQ.Category_ID, CQ.Category_Name, COUNT(Q.Category_ID) AS 'SO LUONG'
-FROM		Category_Question CQ
-LEFT JOIN 	Questions Q ON CQ.Category_ID = Q.Category_ID
-GROUP BY	CQ.Category_ID
-ORDER BY	CQ.Category_ID ASC;
 
 -- Question 7: Lấy ra ID của question có >= 4 câu trả lời
-SELECT	question_id
-FROM	answers
-GROUP BY	question_id
-HAVING		question_id >= 4
+SELECT	*, count(A.question_id) AS 'So_Q'
+FROM	answers A 	JOIN	questions Q 
+ON		A.question_id	=	Q.question_id
+GROUP BY	A.question_id
+HAVING	So_Q >= 4
 ;
 
--- Question 8: Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo trước ngày 20/12/2019
-SELECT	`code`
-FROM	exams
-WHERE	duration >= '60' AND create_date > '2019/12/20'
+-- Question 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
+SELECT	EQ.exam_id, Q.content, count(EQ.question_id) AS So_Q
+FROM	exam_question EQ 
+JOIN	questions Q ON EQ.question_id = Q.question_id
+GROUP BY	EQ.question_id
 ;
 
--- Question 9: Lấy ra 5 group được tạo gần đây nhất
-SELECT	*
-FROM	`groups`
-ORDER BY create_date DESC
-LIMIT 5
+-- Question 8: Lấy ra Question có nhiều câu trả lời nhất
+SELECT	Q.content, count(A.question_id) AS 'So_Q'
+FROM	answers A 
+JOIN	questions Q 
+ON		A.question_id = Q.question_id
+GROUP BY	A.question_id
+HAVING	count(A.question_id) = (SELECT	max(countQ) FROM (SELECT	count(A.question_id) AS CountQ
+																		FROM	answers A 
+																		JOIN	questions Q 
+																		ON		A.question_id = Q.question_id
+                                                                        GROUP BY	Q.question_id) 
+                                                                        AS T)
 ;
 
--- Question 10: Đếm số nhân viên thuộc department có id = 2
+-- Question 9: Thống kê số lượng account trong mỗi group
+SELECT	GA.group_id, count(GA.account_id) AS So_Account
+FROM	accounts A 
+JOIN	group_account GA 
+ON		A.account_id = GA.account_id
+GROUP BY	GA.group_id
+ORDER BY	GA.account_id
+;
 
-SELECT	department_id, count(account_id) AS 'so nhan vien'
-FROM	`accounts`
-WHERE	department_id = 2;
+-- Question 10: Tìm chức vụ có ít người nhất
+SELECT	P.position_name, count(A.position_id) AS So_NV
+FROM	accounts A 
+JOIN	positions P
+ON		A.position_id = P.position_id
+GROUP BY	A.position_id
+HAVING	count(A.account_id) = (SELECT min(So_NV_it) FROM (	SELECT	count(A.position_id) AS So_NV_it
+			 								FROM	accounts A 
+											JOIN	positions P
+											ON		A.position_id = P.position_id
+											GROUP BY	A.position_id) AS T)
+                                            ;
 
 -- Question 11: Thống kê mỗi phòng ban có bao nhiêu dev, test, scrum master, PM
-SELECT	*
-FROM	accounts A
-JOIN	positions P ON A.position_id = P.position_id
-HAVING	position_name IN ('Developer', 'Tester', 'Scrum Master', 'Project Manager')
-;
-
 -- Question 12: Lấy thông tin chi tiết của câu hỏi bao gồm: thông tin cơ bản của question, loại câu hỏi, ai là người tạo ra câu hỏi, câu trả lời là gì, …
-SELECT	Q.content AS Cau_Hoi, Q.creator_id AS Nguoi_Tao, Q.category_id AS Loai_Cau_Hoi, A.question_id , A.content AS Cau_Tra_Loi
+SELECT	Q.content, Q.creator_id, Q.create_date, A.content, A.is_correct, TQ.type_name
 FROM	questions Q 
 JOIN	answers A ON Q.question_id = A.question_id
+JOIN	type_question TQ ON Q.type_id = TQ.type_id
 ;
 
 -- Question 13: Lấy ra số lượng câu hỏi của mỗi loại tự luận hay trắc nghiệm
-SELECT	T.Type_name AS 'Loại Câu Hỏi', count(Q.type_id) AS 'So Luong'
-FROM	type_question T 
-JOIN	questions Q ON T.type_id = Q.type_id
-GROUP BY	Q.type_id
-;
 
 -- Question 14:Lấy ra group không có account nào
-SELECT	G.group_name
-FROM	`groups` G 
-LEFT JOIN	group_account GA ON	GA.group_id = G.group_id
-WHERE	GA.account_id IS NULL
-;
+SELECT	*
+FROM	`groups`
+WHERE	group_id NOT IN (	SELECT 	group_id
+							FROM	group_account);
 
 -- Question 15: Lấy ra group không có account nào
-SELECT	*
-FROM	`GroupS`
-WHERE	Group_ID NOT IN (SELECT 	Group_ID
-							FROM	Group_Account)
-;
-
 -- Question 16: Lấy ra question không có answer nào
-SELECT 	*
+SELECT	*
 FROM	questions
 WHERE	question_id NOT IN (	SELECT	question_id
-								FROM	answers)
-;
-
-
-
+								FROM	answers);
 
 

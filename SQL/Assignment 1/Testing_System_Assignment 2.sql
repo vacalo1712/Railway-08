@@ -1,7 +1,7 @@
 -- create database testing_system
-DROP DATABASE IF EXISTS testing_system;
-CREATE DATABASE IF NOT EXISTS testing_system;
-USE testing_system;
+DROP DATABASE IF EXISTS testing_system_2;
+CREATE DATABASE IF NOT EXISTS testing_system_2;
+USE testing_system_2;
 
 -- create table departments
 DROP TABLE IF EXISTS departments;
@@ -30,7 +30,7 @@ CREATE TABLE accounts (
     -- gender					ENUM('M', 'F', 'U') DEFAULT 'M',
     department_id 			INT(10),
     position_id 			INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP,
 PRIMARY KEY (account_id),
 FOREIGN KEY (department_id) REFERENCES departments(department_id),
 FOREIGN KEY (position_id) REFERENCES positions(position_id)
@@ -42,7 +42,7 @@ CREATE TABLE `groups` (
 	group_id 				INT(10) AUTO_INCREMENT,
     group_name 				VARCHAR(255) UNIQUE NOT NULL,
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP,
 PRIMARY KEY (group_id),
 FOREIGN KEY (creator_id) REFERENCES accounts(account_id)
 );
@@ -82,7 +82,7 @@ CREATE TABLE questions (
     category_id 			INT(10),
     type_id 				INT(10),
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP,
 PRIMARY KEY (question_id),
 FOREIGN KEY (category_id) REFERENCES category_question(category_id),
 FOREIGN KEY (type_id) REFERENCES type_question(type_id),
@@ -109,7 +109,7 @@ CREATE TABLE exams (
     category_id 			INT(10),
     duration 				INT(10),
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP,
 PRIMARY KEY (exam_id),
 FOREIGN KEY (category_id) REFERENCES category_question(category_id),
 FOREIGN KEY (creator_id) REFERENCES accounts(account_id)
@@ -194,12 +194,12 @@ VALUES					  (1,		 	1,				'2020-01-01'),
                           (3,			5,				'2020-01-01'),
                           (3,			2,				'2020-01-01'),
                           (4,			7,				'2020-01-01'),
-                          (4,			8,				'2020-01-01'),
+                          (4,			8,				'2019-10-25'),
                           (5,			9,				'2020-01-01'),
                           (5,			10,				'2020-01-01'),
-                          (6,			11,				'2020-01-01'),
+                          (6,			11,				'2018-10-25'),
                           (6,			12,				'2020-01-01'),
-                          (7,			13,				'2020-01-01'),
+                          (7,			13,				'2018-09-25'),
                           (7,			14,				'2020-01-01'),
                           (8,			15,				'2020-01-01'),
                           (8,			16,				'2020-01-01'),
@@ -309,16 +309,40 @@ VALUES					  (1, 		1		   ),
                           (3, 		10		   ),
                           (10, 		9		   );
 						
+                        
 -- Question 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-SELECT * FROM (accounts,departments);
+Select 	*
+From	accounts, departments;
 
 -- Question 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-SELECT * FROM accounts where create_date > 2010/12/20;
+SELECT	*	FROM	accounts
+WHERE	create_date > '2010/12/20'
+;
 
 -- Question 3: Viết lệnh để lấy ra tất cả các developer
-SELECT * FROM accounts LEFT OUTER JOIN positions ON accounts.position_id = positions.position_id where positions.position_name = 'developer';
+SELECT *
+FROM	accounts A JOIN positions P 
+ON		A.position_id = P.position_id
+WHERE	position_name = 'developer'
+;
 
 -- Question 4: Viết lệnh để lấy ra danh sách các phòng ban có >3 nhân viên
-SELECT count(accounts.department_id) as "Tong" FROM departments LEFT OUTER JOIN accounts on departments.department_id = accounts.department_id where "Tong" > 3 group by departments.department_id;
+SELECT	*, count(A.account_id)
+FROM	accounts A JOIN departments D 
+ON		A.department_id = D.department_id
+GROUP BY	A.department_id
+HAVING	count(A.account_id) > 3
+;
+
+SELECT	*, count(A.department_id)
+FROM	accounts A JOIN departments D
+ON		A.department_id = D.department_id
+GROUP BY	A.department_id
+HAVING	count(A.department_id) > 3
+;
+
+
+
+
 
 

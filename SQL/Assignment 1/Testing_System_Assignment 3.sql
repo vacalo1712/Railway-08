@@ -30,7 +30,7 @@ CREATE TABLE accounts (
     -- gender					ENUM('M', 'F', 'U') DEFAULT 'M',
     department_id 			INT(10),
     position_id 			INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (account_id),
 FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE CASCADE,
 FOREIGN KEY (position_id) REFERENCES positions(position_id) ON DELETE CASCADE
@@ -42,7 +42,7 @@ CREATE TABLE `groups` (
 	group_id 				INT(10) AUTO_INCREMENT,
     group_name 				VARCHAR(255) UNIQUE NOT NULL,
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (group_id),
 FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
 );
@@ -81,7 +81,7 @@ CREATE TABLE questions (
     category_id 			INT(10),
     type_id 				INT(10),
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (question_id),
 FOREIGN KEY (category_id) REFERENCES category_question(category_id) ON DELETE CASCADE,
 FOREIGN KEY (type_id) REFERENCES type_question(type_id) ON DELETE CASCADE,
@@ -108,7 +108,7 @@ CREATE TABLE exams (
     category_id 			INT(10),
     duration 				INT(10),
     creator_id 				INT(10),
-    create_date 			TIMESTAMP DEFAULT NOW(),
+    create_date 			TIMESTAMP ,
 PRIMARY KEY (exam_id),
 FOREIGN KEY (category_id) REFERENCES category_question(category_id) ON DELETE CASCADE,
 FOREIGN KEY (creator_id) REFERENCES accounts(account_id) ON DELETE CASCADE
@@ -309,97 +309,99 @@ VALUES					  (1, 		1		   ),
                           (10, 		9		   );
 
 -- Question 2: lấy ra tất cả các phòng ban
-
-SELECT * FROM departments;
+SELECT	*
+FROM	departments;
 
 -- Question 3: lấy ra id của phòng ban Sale
-
-SELECT * FROM departments where department_name = 'sale';
-
--- Question 4: lấy ra thông tin account có full name dài nhất
-
-select full_name, length(Full_name)
-from `accounts` 
-where length(Full_name) = (select min(length(Full_name)) from `accounts`);
-
- -- Question 5: Lấy ra thông tin account có full name dài nhất và thuộc phòng ban có id = 3
- 
-SELECT 	full_name, length(full_name)
-FROM 	`accounts`
-WHERE	department_id = 3 AND length(full_name) = (SELECT max(length(full_name))
-													FROM `accounts`
-													WHERE department_id = 3)
+SELECT	*
+FROM	departments
+WHERE	department_name = 'Sale'
 ;
- 
- -- Question 6: Lấy ra tên group đã tham gia trước ngày 20/12/2019
 
-SELECT 	*
+ -- Question 4: lấy ra thông tin account có full name dài nhất;
+SELECT	full_name, length(full_name) AS 'Do_Dai'
+FROM	accounts
+WHERE	length(full_name) = (	Select MAX(length(full_name))
+								FROM	(	SELECT	full_name, length(full_name) AS 'Do_Dai'
+											FROM	accounts) AS T);
+
+-- Question 5: Lấy ra thông tin account có full name dài nhất và thuộc phòng ban có id = 3
+SELECT	department_id, full_name, length(full_name) AS 'Do_Dai'
+FROM	accounts
+WHERE	length(full_name) = (	Select  MAX(length(full_name))
+								FROM	(	SELECT	department_id, full_name, length(full_name) AS 'Do_Dai'
+											FROM	accounts
+                                            WHERE	department_id = 3) AS T)
+;
+
+ 
+-- Question 6: Lấy ra tên group đã tham gia trước ngày 20/12/2019
+SELECT	group_name, create_date
 FROM	`groups`
-WHERE	create_date > 2010/12/20
+WHERE	create_date < '2019/12/20'
 ;
 
 -- Question 7: Lấy ra ID của question có >= 4 câu trả lời
-
-SELECT		question_id, count(answer_id)
-FROM		answers
+SELECT	*
+FROM	answers
 GROUP BY	question_id
-HAVING		count(answer_id) >= 4
+HAVING	count(question_id) >= 4
 ;
 
 -- Question 8: Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo trước ngày 20/12/2019
-
-SELECT		`Code`
-FROM		exams
-WHERE		duration >= 60 AND create_date < 2019/12/20
+SELECT	`Code`
+FROM	exams
+WHERE	duration >= 60 AND	create_date < '2019/12/20'
 ;
 
 -- Question 9: Lấy ra 5 group được tạo gần đây nhất
-
-SELECT		*
-FROM		`groups`
-GROUP BY	create_date
-LIMIT		5
+SELECT	create_date
+FROM	`groups`
+ORDER BY	create_date DESC
+LIMIT 5
 ;
 
 -- Question 10: Đếm số nhân viên thuộc department có id = 2
-
-SELECT 		COUNT(Account_ID) AS 'SO NHAN VIEN' 
-FROM 		`Accounts`
-WHERE 		Department_ID = 2;
+SELECT	D.department_name, count(A.account_id) AS 'So_NV'
+FROM	accounts A	JOIN	departments D 
+ON		A.department_id =	D.department_id
+WHERE	A.department_id = 2
 ;
 
--- Question 11: Lấy ra nhân viên có tên bắt đầu bằng chữ "D" và kết thúc bằng chữ "o"
-
-SELECT		full_name
-FROM		`accounts`
-WHERE		left(full_name, 1) = 'D' AND right(full_name, 1) = 'o'
+-- Question 11: Lấy ra nhân viên có tên bắt đầu bằng chữ "D" và kết thúc bằng chữ "o".
+SELECT	full_name
+FROM	accounts
+WHERE	full_name LIKE	'D%o'
 ;
 
 -- Question 12: xóa tất cả các exam được tạo trước ngày 20/12/2019
-
-DELETE		
-FROM		exams
-WHERE		create_date < '2019/12/20'
+DELETE
+FROM	exams
+WHERE	create_date < '2019/12/20'
 ;
 
--- Question 13: xóa tất cả các Account có FullName bắt đầu bằng 2 từ "Nguyễn Hải"
-
-DELETE
-FROM		`accounts`
-WHERE		(substring_index(full_name,' ', 2)) = 'Tuck Gatchell'
+-- Question 13: xóa tất cả các Account có FullName bắt đầu bằng 2 từ "VA".
+DELETE	
+FROM	accounts
+WHERE	full_name LIKE	'VA%'
 ;
 
 -- Question 14: update thông tin của account có id = 5 thành tên "Nguyễn Bá Lộc" và email thành loc.nguyenba@vti.com.vn
-
-UPDATE		`accounts`
-SET			full_name 	= 	'Nguyễn Bá Lộc',
-			Email		=	'loc.nguyenba@vti.com.vn'
-WHERE		account_id	=	5
+UPDATE	accounts
+SET		Full_Name = 'Nguyen Ba Loc', Email = 'loc.nguyenba@vti.com.vn'
+WHERE	account_id = 5
 ;
 
 -- Question 15: update account có id = 5 sẽ thuộc group có id = 4
-
-UPDATE		group_account
-SET			account_id		=	5
-WHERE		group_id		=	4
+UPDATE	group_account
+SET		group_id = 4
+WHERE	account_ID	= 5
 ;
+
+
+
+
+
+
+
+

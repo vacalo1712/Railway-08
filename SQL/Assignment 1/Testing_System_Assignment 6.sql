@@ -1,7 +1,7 @@
 -- create database testing_system
-DROP DATABASE IF EXISTS testing_system_5;
-CREATE DATABASE IF NOT EXISTS testing_system_5;
-USE testing_system_5;
+DROP DATABASE IF EXISTS testing_system_6;
+CREATE DATABASE IF NOT EXISTS testing_system_6;
+USE testing_system_6;
 
 -- create table departments
 DROP TABLE IF EXISTS departments;
@@ -308,57 +308,87 @@ VALUES					  (1, 		1		   ),
                           (3, 		10		   ),
                           (10, 		9		   );
 
--- Question 1: Tạo view có chứa danh sách nhân viên thuộc phòng ban sale
+-- Question 1: Tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các account thuộc phòng ban đó
 
-CREATE OR REPLACE VIEW	NV_Sale	AS
-SELECT	A.*, D.department_name
-FROM	accounts A
-JOIN	departments D ON	A.department_id = D.department_id
-WHERE	department_name = 'Sale'
-;
+DROP PROCEDURE IF EXISTS SP_Department;
+DELIMITER $$
+CREATE PROCEDURE SP_Department (IN IN_department_name VARCHAR (50))
+BEGIN
+	SELECT	*
+    FROM	accounts A 
+    JOIN	departments D ON A.department_id = D.department_id
+    WHERE	D.department_name = IN_department_name
+    ;
+END$$
+DELIMITER ;
 
-SELECT	*
-FROM	NV_Sale;
+CALL SP_Department('marketing');
 
--- Question 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất
+-- Question 2: Tạo store để in ra số lượng account trong mỗi group
 
-CREATE OR REPLACE VIEW	Acc_Join_Group	AS
-SELECT	A.Full_name, count(GA.group_id) AS So_Group
-FROM	group_account GA
-JOIN	accounts A ON GA.account_id = A.account_id
-GROUP BY	GA.account_id
-HAVING	So_Group = (SELECT max(So_Group) FROM (	SELECT	count(GA.group_id) AS So_Group
-												FROM	group_account GA
-												JOIN	accounts A ON GA.account_id = A.account_id
-												GROUP BY	GA.account_id) AS t)
-;
+DROP PROCEDURE IF EXISTS SP_acc_in_Group;
+DELIMITER $$
+CREATE PROCEDURE SP_acc_in_Group (IN IN_Group_ID TINYINT UNSIGNED)
+BEGIN
+	SELECT	Group_ID, count(account_id) AS So_Acc
+    FROM	group_account
+    WHERE	Group_ID = IN_Group_ID
+    ;
+END$$
+DELIMITER ;
 
-SELECT	*
-FROM	Acc_Join_Group;
+CALL SP_acc_in_Group('1');
 
--- Question 3: Tạo view có chứa câu hỏi có những content quá dài (content quá 300 từ được coi là quá dài) và xóa nó đi
+-- Question 3: Tạo store để thống kê mỗi type question có bao nhiêu question được tạo trong tháng hiện tại
 
--- Question 4: Tạo view có chứa danh sách các phòng ban có nhiều nhân viên nhất
-CREATE OR REPLACE VIEW	Acc_Of_Department	AS
-SELECT	department_name, count(A.account_id) AS So_Nhan_Vien
-FROM	departments D
-JOIN	Accounts A ON D.department_id = A.department_id
-GROUP BY	A.department_id
-HAVING	So_Nhan_Vien = (SELECT Max(So_Nhan_Vien) FROM (	SELECT	count(A.account_id) AS So_Nhan_Vien
-														FROM	departments D
-														JOIN	Accounts A ON D.department_id = A.department_id
-														GROUP BY	A.department_id) AS T)
-;
+DROP PROCEDURE IF EXISTS SP_QS_In_Month;
+DELIMITER $$
+CREATE PROCEDURE SP_QS_In_Month ()
+BEGIN
+	SELECT	TQ.type_name, count(Q.question_id) AS So_Q
+    FROM	questions Q 
+    JOIN	type_question TQ ON Q.type_id = TQ.type_id
+    WHERE	month(Q.create_date) = month(now())
+    AND		year(Q.create_date) = year(now())
+    ;
+END$$
+DELIMITER ;
 
-SELECT	*
-FROM	Acc_Of_Department;
+CALL SP_QS_In_Month();
 
--- Question 5: Tạo view có chứa tất cả các câu hỏi do user họ Tuck tạo
-SELECT 	*	
-FROM	accounts A 
-JOIN	questions Q ON A.account_id = Q.creator_id
-WHERE	substring_index(Full_Name, ' ', 1) = 'Tuck'
-;
+-- Question 4: Tạo store để trả ra id của type question có nhiều câu hỏi nhất
+
+DROP PROCEDURE IF EXISTS SP_TQ_NhieuCauHoi;
+DELIMITER $$
+CREATE PROCEDURE SP_TQ_NhieuCauHoi ()
+BEGIN
+	SELECT	Q.type_id, count(Q.type_id) AS So_Q
+    FROM	questions Q 
+    JOIN	type_question TQ ON Q.type_id = TQ.type_id
+    GROUP BY	TQ.type_id
+    HAVING	So_Q = (	SELECT Max(Max_Q) FROM (	SELECT	count(type_id) AS Max_Q
+													FROM	questions
+													GROUP BY	type_id) AS T)
+													;
+
+END$$
+DELIMITER ;
+
+CALL SP_QS_In_Month();
+
+-- Question 5: Sử dụng store ở question 4 để tìm ra tên của type question
+-- Question 6: Viết 1 store cho phép người dùng nhập vào 1 chuỗi và trả về group có tên chứa chuỗi của người dùng nhập vào hoặc trả về user có username chứa chuỗi của người dùng nhập vào
+-- Question 7: Viết 1 store cho phép người dùng nhập vào thông tin fullName, email và trong store sẽ tự động gán:
+	-- username sẽ giống email nhưng bỏ phần @..mail đi
+	-- positionID: sẽ có default là developer
+	-- departmentID: sẽ được cho vào 1 phòng chờ
+	-- Sau đó in ra kết quả tạo thành công
+-- Question 8: Viết 1 store cho phép người dùng nhập vào Essay hoặc Multiple-Choice để thống kê câu hỏi essay hoặc multiple-choice nào có content dài nhất
+-- Question 9: Viết 1 store cho phép người dùng xóa exam dựa vào ID
+-- Question 10: Tìm ra các exam được tạo từ 3 năm trước và xóa các exam đó đi (sử dụng store ở câu 9 để xóa) Sau đó in số lượng record đã remove từ các table liên quan trong khi removing
+-- Question 11: Viết store cho phép người dùng xóa phòng ban bằng cách người dùng nhập vào tên phòng ban và các account thuộc phòng ban đó sẽ được chuyển về phòng ban default là phòng ban chờ việc
+-- Question 12: Viết store để in ra mỗi tháng có bao nhiêu câu hỏi được tạo trong năm nay2
+-- Question 13: Viết store để in ra mỗi tháng có bao nhiêu câu hỏi được tạo trong 6 tháng gần đây nhất (Nếu tháng nào không có thì sẽ in ra là "không có câu hỏi nào trong tháng")
 
 
 
