@@ -90,7 +90,7 @@ SELECT	C.country_name, L.location_id, count(E.employee_id) AS So_Employee
 FROM	country C 
 JOIN	location L ON C.country_id = L.country_id
 JOIN	employee E ON L.location_id = E.location_id
-GROUP BY	E.employee_id
+GROUP BY	C.country_name
 ;
 
 -- 3. Tạo trigger cho table Employee chỉ cho phép insert mỗi quốc gia có tối đa 10 employee
